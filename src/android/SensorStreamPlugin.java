@@ -1,6 +1,5 @@
 package hu.sensorStream.host;
 
-import hu.sensorStream.host.StreamService;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;

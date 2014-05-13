@@ -1,17 +1,35 @@
 var sensorStreamPlugin =  {
-    startEvent: function( serverAddress, token, successCallback, errorCallback) {
+    connect: function( ipAddress, port,  successCallback, errorCallback) {
+        cordova.exec(
+            successCallback,
+            errorCallback,
+            'SensorStreamPlugin',
+            'connect',
+            [{
+                "ipAddress": ipAddress,
+                "port": port
+            }]
+        );
+    },
+    disconnect: function(successCallback, errorCallback) {
+        cordova.exec(
+            successCallback,
+            errorCallback,
+            'SensorStreamPlugin',
+            'disconnect',
+            []
+        );
+    },
+    startStream: function( successCallback, errorCallback) {
         cordova.exec(
             successCallback,
             errorCallback,
             'SensorStreamPlugin',
             'startStream',
-            [{
-                "token": token,
-                "serverAddress": serverAddress
-            }]
+            []
         );
     },
-    stopEvent: function(successCallback, errorCallback) {
+    stopStream: function(successCallback, errorCallback) {
         cordova.exec(
             successCallback,
             errorCallback,

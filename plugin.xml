@@ -4,14 +4,14 @@
 xmlns:android="http://schemas.android.com/apk/res/android"
            id="hu.spot.taxi.pollerPlugin"
       version="0.3.6">
-    <name>URI Poller</name>
-    <description>URI Poller plugin</description>
+    <name>SensorStreamPlugin</name>
+    <description>Sensor Stream Plugin</description>
     <license>MIT</license>
-    <keywords>phonegap,poller</keywords>
+    <keywords>phonegap,sensor stream</keywords>
  
  
-    <js-module src="www/SensorStreamPlugin.js" name="SensorStreamPlugin">
-        <clobbers target="window.SensorStreamPlugin" />
+    <js-module src="www/sensorstream.js" name="SensorStreamPlugin">
+        <clobbers target="window.sensorstream" />
     </js-module>
  
     <platform name="android">
