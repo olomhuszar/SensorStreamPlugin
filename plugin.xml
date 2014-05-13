@@ -2,7 +2,7 @@
  
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 xmlns:android="http://schemas.android.com/apk/res/android"
-           id="hu.sensorStream.host.SensorStreamPlugin"
+           id="hu.sensorStream.client.SensorStreamPlugin"
       version="0.3.6">
     <name>SensorStreamPlugin</name>
     <description>Sensor Stream Plugin</description>
@@ -17,9 +17,9 @@ xmlns:android="http://schemas.android.com/apk/res/android"
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="SensorStreamPlugin">
-                <param name="android-package" value="hu.sensorStream.host.SensorStreamPlugin"/>
+                <param name="android-package" value="hu.sensorStream.client.SensorStreamPlugin"/>
             </feature>
         </config-file>
-        <source-file src="src/android/SensorStreamPlugin.java" target-dir="src/hu/spot/taxi/sensorStreamPlugin" />
+        <source-file src="src/android/SensorStreamPlugin.java" target-dir="src/hu/sensorStream/client/sensorStreamPlugin" />
      </platform>          
 </plugin>

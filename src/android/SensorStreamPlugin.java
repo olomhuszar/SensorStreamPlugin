@@ -1,8 +1,5 @@
-package hu.sensorStream.host;
+package hu.sensorStream.client;
 
-
-import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaPlugin;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,7 +12,9 @@ import android.os.IBinder;
 import android.util.Log;
 
 
+import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Random;
 
 
 
@@ -25,8 +24,8 @@ public class SensorStreamPlugin extends CordovaPlugin {
 	private static final String ACTION_CONNECT = "connect";
 	private static final String ACTION_DISCONNECT = "disconnect";
 	private String ipAddress = null;
-	private int port = null;
-	private Socket = socket;
+	private int port = 0;
+	private Socket socket;
 	private Stream stream;
 	private Thread streamThread = null;
 	private PrintWriter out = null;
@@ -59,7 +58,8 @@ public class SensorStreamPlugin extends CordovaPlugin {
 				return true;
 			} else if (ACTION_START_STREAM.equals(action)) {
 				cordova.getThreadPool().execute(new Runnable() {
-				    public void run() {
+				    @Override
+					public void run() {
 						startStream();
 						Log.d("CordovaLog", "Starting stream");
 						callbackContext.success(); 
@@ -68,7 +68,8 @@ public class SensorStreamPlugin extends CordovaPlugin {
 				return true;
 			} else if (ACTION_STOP_STREAM.equals(action)) {
 				cordova.getThreadPool().execute(new Runnable() {
-				    public void run() {
+				    @Override
+					public void run() {
 						stopStream();
 						Log.d("CordovaLog", "Stop streaming");
 						callbackContext.success(); 
