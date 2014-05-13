@@ -11,7 +11,7 @@ xmlns:android="http://schemas.android.com/apk/res/android"
  
  
     <js-module src="www/sensorstream.js" name="SensorStreamPlugin">
-        <clobbers target="window.sensorstream" />
+        <clobbers target="window.sensorStreamPlugin" />
     </js-module>
  
     <platform name="android">
