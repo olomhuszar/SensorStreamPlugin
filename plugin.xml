@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+xmlns:android="http://schemas.android.com/apk/res/android"
+           id="hu.spot.taxi.pollerPlugin"
+      version="0.3.6">
+    <name>URI Poller</name>
+    <description>URI Poller plugin</description>
+    <license>MIT</license>
+    <keywords>phonegap,poller</keywords>
+ 
+ 
+    <js-module src="www/SensorStreamPlugin.js" name="SensorStreamPlugin">
+        <clobbers target="window.SensorStreamPlugin" />
+    </js-module>
+ 
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="SensorStreamPlugin">
+                <param name="android-package" value="hu.sensorStream.host.SensorStreamPlugin"/>
+            </feature>
+        </config-file>
+        <source-file src="src/android/SensorStreamPlugin.java" target-dir="src/hu/spot/taxi/sensorStreamPlugin" />
+     </platform>          
+</plugin>
