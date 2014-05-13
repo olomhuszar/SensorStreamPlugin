@@ -20,6 +20,6 @@ xmlns:android="http://schemas.android.com/apk/res/android"
                 <param name="android-package" value="hu.sensorStream.client.SensorStreamPlugin"/>
             </feature>
         </config-file>
-        <source-file src="src/android/SensorStreamPlugin.java" target-dir="src/hu/sensorStream/client/sensorStreamPlugin" />
+        <source-file src="src/android/SensorStreamPlugin.java" target-dir="src/hu/sensorStream/client" />
      </platform>          
 </plugin>

@@ -1,5 +1,7 @@
 package hu.sensorStream.client;
 
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaPlugin;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,8 +14,10 @@ import android.os.IBinder;
 import android.util.Log;
 
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Random;
 
 
@@ -86,16 +90,32 @@ public class SensorStreamPlugin extends CordovaPlugin {
 		}
 	}
 	public void connect() {		
-		socket = new Socket(ipAddress, port);
+		try {
+			socket = new Socket(ipAddress, port);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	public void disconnect() {
 		if(socket != null) {
-			socket.close();	
+			try {
+				socket.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}	
 		}
 	}
 	public void startStream() {
 		if( out == null && socket != null ) {
-			out = new PrintWriter(socket.getOutputStream(), true);
+			try {
+				out = new PrintWriter(socket.getOutputStream(), true);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		running = true;
 		streamData();
@@ -114,7 +134,12 @@ public class SensorStreamPlugin extends CordovaPlugin {
 			while(running) {
 	        	data = 50.0 + ( rand.nextDouble() * 100 );
 	        	out.println(data);
-				Thread.sleep(rand.nextInt(30)+20);
+				try {
+					Thread.sleep(rand.nextInt(30)+20);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 	}
