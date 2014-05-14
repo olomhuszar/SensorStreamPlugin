@@ -164,9 +164,6 @@ public class SensorStreamPlugin extends CordovaPlugin {
 
 	public void stopStream() {
 		running = false;
-		if (out != null) {
-			out.close();
-		}
 	}
 
 	protected class Stream implements Runnable {
@@ -242,7 +239,7 @@ public class SensorStreamPlugin extends CordovaPlugin {
 				deltat = 0;
 			}
 			prevNs = ns;
-			if (running) {
+			if (running && out != null) {
 				JSONObject result = new JSONObject();
 				try {
 					result.put("type", type);
