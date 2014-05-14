@@ -2,6 +2,7 @@ package hu.sensorStream.client;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.http.cookie.SM;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -11,6 +12,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.util.Log;
@@ -128,13 +131,16 @@ public class SensorStreamPlugin extends CordovaPlugin {
 		if( out == null && socket != null ) {
 			try {
 				out = new PrintWriter(socket.getOutputStream(), true);
+				mSensorManager = (SensorManager) cordova.getActivity().getSystemService(Context.SENSOR_SERVICE);
+				Sensor mLinerAcceleration  = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+				mSensorManager.registerListener(new LinerAccelerationListener(), mLinerAcceleration, SensorManager.SENSOR_DELAY_FASTEST);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		running = true;
-		streamData();
+		//streamData();
 	}
 	public void stopStream() {
 		running = false;
@@ -188,5 +194,39 @@ public class SensorStreamPlugin extends CordovaPlugin {
 		}
 		builder.append("</ul>");
 		return builder.toString();
+	}
+	protected class LinerAccelerationListener implements SensorEventListener {
+		float prevNs;
+		@Override
+		public void onAccuracyChanged(Sensor sensor, int accuracy) {
+			Log.d("CordovaLog", "Sensor accuracy changed to: " + accuracy);
+		}
+
+		@Override
+		public void onSensorChanged(SensorEvent event) {
+			Log.d("CordovaLog", "new datas from sensor!");
+			float x = event.values[0];
+			float y = event.values[1];
+			float z = event.values[2];
+			float ns = event.timestamp;
+			float deltat = ns-prevNs;
+			if(prevNs == 0) {
+				deltat = 0;
+			}
+			prevNs = ns;
+			if( running ) {
+				JSONObject result = new JSONObject();
+				try {
+					result.put("x", x);
+					result.put("y", y);
+					result.put("z", z);
+					result.put("deltat", deltat);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+	        	out.println(result.toString());
+			}
+		}
+		
 	}
 }
