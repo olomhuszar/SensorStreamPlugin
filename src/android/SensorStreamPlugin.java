@@ -10,6 +10,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -18,6 +20,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 
@@ -35,6 +39,8 @@ public class SensorStreamPlugin extends CordovaPlugin {
 	private Thread streamThread = null;
 	private PrintWriter out = null;
 	private boolean running = false;
+	private SensorManager mSensorManager;
+
 
 	@Override
 	public boolean execute(String action, JSONArray args,
@@ -75,7 +81,6 @@ public class SensorStreamPlugin extends CordovaPlugin {
 				cordova.getThreadPool().execute(new Runnable() {
 				    @Override
 					public void run() {
-						String info = getInfo();
 						Log.d("CordovaLog", "Stop streaming");
 						callbackContext.success(); 
 				    }
@@ -85,9 +90,9 @@ public class SensorStreamPlugin extends CordovaPlugin {
 				cordova.getThreadPool().execute(new Runnable() {
 				    @Override
 					public void run() {
-						stopStream();
+						String info = getInfo();
 						Log.d("CordovaLog", "Get sensor informations.");
-						callbackContext.success(); 
+						callbackContext.success( info ); 
 				    }
 				});
 				return true;
@@ -159,7 +164,29 @@ public class SensorStreamPlugin extends CordovaPlugin {
 		streamThread.start();
 	}
 	public String getInfo() {
-		String info = new String();
-		return info;
+		StringBuilder builder = new StringBuilder("<ul>");
+		mSensorManager = (SensorManager) cordova.getActivity().getSystemService(Context.SENSOR_SERVICE);
+		List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
+		for (Sensor sensor : deviceSensors) {
+			builder.append("<li>");
+			builder.append(sensor.getName());
+			builder.append("(");
+			builder.append(sensor.getType());
+			builder.append(")");
+			builder.append(": ");
+			builder.append(sensor.getMaximumRange());
+			builder.append(" unit maxRange, ");
+			builder.append(sensor.getMinDelay());
+			builder.append(" ms minDelay, ");
+			builder.append(sensor.getResolution());
+			builder.append(" unit resolution, ");
+			builder.append(sensor.getVendor());
+			builder.append(" vendor, ");
+			builder.append(sensor.getVersion());
+			builder.append(" version");
+			builder.append("</li>");
+		}
+		builder.append("</ul>");
+		return builder.toString();
 	}
 }
