@@ -1,4 +1,3 @@
-}
 package hu.sensorStream.client;
 
 import org.apache.cordova.CallbackContext;
