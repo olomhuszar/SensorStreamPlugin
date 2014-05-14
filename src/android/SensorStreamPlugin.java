@@ -27,6 +27,7 @@ public class SensorStreamPlugin extends CordovaPlugin {
 	private static final String ACTION_STOP_STREAM = "stopStream";
 	private static final String ACTION_CONNECT = "connect";
 	private static final String ACTION_DISCONNECT = "disconnect";
+	private static final String ACTION_GET_INFO = "getInfo";
 	private String ipAddress = null;
 	private int port = 0;
 	private Socket socket;
@@ -74,8 +75,18 @@ public class SensorStreamPlugin extends CordovaPlugin {
 				cordova.getThreadPool().execute(new Runnable() {
 				    @Override
 					public void run() {
-						stopStream();
+						String info = getInfo();
 						Log.d("CordovaLog", "Stop streaming");
+						callbackContext.success(); 
+				    }
+				});
+				return true;
+			} else if (ACTION_GET_INFO.equals(action)) {
+				cordova.getThreadPool().execute(new Runnable() {
+				    @Override
+					public void run() {
+						stopStream();
+						Log.d("CordovaLog", "Get sensor informations.");
 						callbackContext.success(); 
 				    }
 				});
@@ -146,5 +157,9 @@ public class SensorStreamPlugin extends CordovaPlugin {
 	public void streamData() {
 		streamThread = new Thread(new Stream());
 		streamThread.start();
+	}
+	public String getInfo() {
+		String info = new String();
+		return info;
 	}
 }

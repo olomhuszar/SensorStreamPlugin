@@ -37,6 +37,15 @@ var sensorStreamPlugin =  {
             'stopStream',
             []
         );
+    },
+    getInfo: function(successCallback, errorCallback) {
+        cordova.exec(
+            successCallback,
+            errorCallback,
+            'SensorStreamPlugin',
+            'getInfo',
+            []
+        );
     }
 }
 module.exports = sensorStreamPlugin;
