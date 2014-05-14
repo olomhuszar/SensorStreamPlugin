@@ -81,6 +81,7 @@ public class SensorStreamPlugin extends CordovaPlugin {
 				cordova.getThreadPool().execute(new Runnable() {
 					@Override
 					public void run() {
+						stopStream();
 						Log.d("CordovaLog", "Stop streaming");
 						callbackContext.success();
 					}
