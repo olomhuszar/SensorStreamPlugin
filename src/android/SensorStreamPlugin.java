@@ -2,29 +2,22 @@ package hu.sensorStream.client;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
-import org.apache.http.cookie.SM;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.IBinder;
 import android.util.Log;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
 public class SensorStreamPlugin extends CordovaPlugin {
 	private static final String ACTION_START_STREAM = "startStream";
@@ -35,8 +28,6 @@ public class SensorStreamPlugin extends CordovaPlugin {
 	private String ipAddress = null;
 	private int port = 0;
 	private Socket socket;
-	private Stream stream;
-	private Thread streamThread = null;
 	private PrintWriter out = null;
 	private boolean running = false;
 	private SensorManager mSensorManager;
@@ -122,16 +113,22 @@ public class SensorStreamPlugin extends CordovaPlugin {
 			try {
 				socket.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 	}
 
 	public void startStream() {
-		if (out == null && socket != null) {
+		if (socket != null) {
 			try {
 				out = new PrintWriter(socket.getOutputStream(), true);
+				JSONObject result = new JSONObject();
+				try {
+					result.put("type", "clear");
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				out.println(result.toString());
 				mSensorManager = (SensorManager) cordova.getActivity()
 						.getSystemService(Context.SENSOR_SERVICE);
 				Sensor mLinearAcceleration = mSensorManager
@@ -139,84 +136,15 @@ public class SensorStreamPlugin extends CordovaPlugin {
 				mSensorManager.registerListener(
 						new LinearAccelerationListener(), mLinearAcceleration,
 						SensorManager.SENSOR_DELAY_FASTEST);
-				Sensor mGravity = mSensorManager
-						.getDefaultSensor(Sensor.TYPE_GRAVITY);
-				mSensorManager.registerListener(
-						new GravityListener(), mGravity,
-						SensorManager.SENSOR_DELAY_FASTEST);
-				Sensor mMagneticField = mSensorManager
-						.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-				mSensorManager.registerListener(
-						new MagneticFieldListener(), mMagneticField,
-						SensorManager.SENSOR_DELAY_FASTEST);
-				Sensor mRotationVector = mSensorManager
-						.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-				mSensorManager.registerListener(
-						new RotationVectorListener(), mRotationVector,
-						SensorManager.SENSOR_DELAY_FASTEST);
+				running = true;
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		running = true;
-		// streamData();
 	}
 
 	public void stopStream() {
 		running = false;
-	}
-
-	protected class Stream implements Runnable {
-		@Override
-		public void run() {
-			double data;
-			Random rand = new Random();
-			while (running) {
-				data = 50.0 + (rand.nextDouble() * 100);
-				out.println(data);
-				try {
-					Thread.sleep(rand.nextInt(30) + 20);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	public void streamData() {
-		streamThread = new Thread(new Stream());
-		streamThread.start();
-	}
-
-	public String getInfo() {
-		StringBuilder builder = new StringBuilder("<ul>");
-		mSensorManager = (SensorManager) cordova.getActivity()
-				.getSystemService(Context.SENSOR_SERVICE);
-		List<Sensor> deviceSensors = mSensorManager
-				.getSensorList(Sensor.TYPE_ALL);
-		for (Sensor sensor : deviceSensors) {
-			builder.append("<li>");
-			builder.append(sensor.getName());
-			builder.append("(");
-			builder.append(sensor.getType());
-			builder.append(")");
-			builder.append(": ");
-			builder.append(sensor.getMaximumRange());
-			builder.append(" unit maxRange, ");
-			builder.append(sensor.getMinDelay());
-			builder.append(" ms minDelay, ");
-			builder.append(sensor.getResolution());
-			builder.append(" unit resolution, ");
-			builder.append(sensor.getVendor());
-			builder.append(" vendor, ");
-			builder.append(sensor.getVersion());
-			builder.append(" version");
-			builder.append("</li>");
-		}
-		builder.append("</ul>");
-		return builder.toString();
 	}
 
 	protected class LinearAccelerationListener implements SensorEventListener {
@@ -254,117 +182,35 @@ public class SensorStreamPlugin extends CordovaPlugin {
 				out.println(result.toString());
 			}
 		}
-
 	}
-	protected class GravityListener implements SensorEventListener {
-		float prevNs;
 
-		@Override
-		public void onAccuracyChanged(Sensor sensor, int accuracy) {
-			Log.d("CordovaLog", "Sensor accuracy changed to: " + accuracy);
+	public String getInfo() {
+		StringBuilder builder = new StringBuilder("<ul>");
+		mSensorManager = (SensorManager) cordova.getActivity()
+				.getSystemService(Context.SENSOR_SERVICE);
+		List<Sensor> deviceSensors = mSensorManager
+				.getSensorList(Sensor.TYPE_ALL);
+		for (Sensor sensor : deviceSensors) {
+			builder.append("<li>");
+			builder.append(sensor.getName());
+			builder.append("(");
+			builder.append(sensor.getType());
+			builder.append(")");
+			builder.append(": ");
+			builder.append(sensor.getMaximumRange());
+			builder.append(" unit maxRange, ");
+			builder.append(sensor.getMinDelay());
+			builder.append(" ms minDelay, ");
+			builder.append(sensor.getResolution());
+			builder.append(" unit resolution, ");
+			builder.append(sensor.getVendor());
+			builder.append(" vendor, ");
+			builder.append(sensor.getVersion());
+			builder.append(" version");
+			builder.append("</li>");
 		}
-
-		@Override
-		public void onSensorChanged(SensorEvent event) {
-			Log.d("CordovaLog", "new datas from sensor!");
-			String type = "Gravity";
-			float x = event.values[0];
-			float y = event.values[1];
-			float z = event.values[2];
-			float ns = event.timestamp;
-			float deltat = ns - prevNs;
-			if (prevNs == 0) {
-				deltat = 0;
-			}
-			prevNs = ns;
-			if (running) {
-				JSONObject result = new JSONObject();
-				try {
-					result.put("type", type);
-					result.put("x", x);
-					result.put("y", y);
-					result.put("z", z);
-					result.put("deltat", deltat);
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-				out.println(result.toString());
-			}
-		}
-
+		builder.append("</ul>");
+		return builder.toString();
 	}
-	protected class MagneticFieldListener implements SensorEventListener {
-		float prevNs;
 
-		@Override
-		public void onAccuracyChanged(Sensor sensor, int accuracy) {
-			Log.d("CordovaLog", "Sensor accuracy changed to: " + accuracy);
-		}
-
-		@Override
-		public void onSensorChanged(SensorEvent event) {
-			Log.d("CordovaLog", "new datas from sensor!");
-			String type = "MagneticField";
-			float x = event.values[0];
-			float y = event.values[1];
-			float z = event.values[2];
-			float ns = event.timestamp;
-			float deltat = ns - prevNs;
-			if (prevNs == 0) {
-				deltat = 0;
-			}
-			prevNs = ns;
-			if (running) {
-				JSONObject result = new JSONObject();
-				try {
-					result.put("type", type);
-					result.put("x", x);
-					result.put("y", y);
-					result.put("z", z);
-					result.put("deltat", deltat);
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-				out.println(result.toString());
-			}
-		}
-
-	}
-	protected class RotationVectorListener implements SensorEventListener {
-		float prevNs;
-
-		@Override
-		public void onAccuracyChanged(Sensor sensor, int accuracy) {
-			Log.d("CordovaLog", "Sensor accuracy changed to: " + accuracy);
-		}
-
-		@Override
-		public void onSensorChanged(SensorEvent event) {
-			Log.d("CordovaLog", "new datas from sensor!");
-			String type = "RotationVector";
-			float x = event.values[0];
-			float y = event.values[1];
-			float z = event.values[2];
-			float ns = event.timestamp;
-			float deltat = ns - prevNs;
-			if (prevNs == 0) {
-				deltat = 0;
-			}
-			prevNs = ns;
-			if (running) {
-				JSONObject result = new JSONObject();
-				try {
-					result.put("type", type);
-					result.put("x", x);
-					result.put("y", y);
-					result.put("z", z);
-					result.put("deltat", deltat);
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-				out.println(result.toString());
-			}
-		}
-
-	}
 }
